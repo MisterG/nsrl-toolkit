@@ -1,12 +1,7 @@
-# Compiled Object files
-*.slo
-*.lo
+Makefile
+.DS_Store
+*.user
 *.o
-
-# Compiled Dynamic libraries
-*.so
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+moc*
+ui_*
+*.app
