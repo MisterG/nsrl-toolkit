@@ -10,7 +10,7 @@
  * @see The GNU Public License (GPL) version 3 or higher
  *
  *
- * forensics-data-extractor is free software; you can redistribute it and/or
+ * nsrl-toolkit is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -32,42 +32,9 @@
 #include <QStringBuilder>
 #include <QtSql>
 
-/*
- * Database
- */
-
-bool	init_db(QSqlDatabase& db);
-bool	burst_commit(QSqlDatabase& db, uint burst);
-
-/*
- * Files processing
- */
-
-// Last to import
-bool	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query, uint burst);
-
-/*
- * clean_nsrl_file_line
- *
- * Puts the missing commas (RDS 237 contains "ere" strings instead of '","')
- *
- * @arg	line	:	 the line to clean
- *
- */
-void	clean_nsrl_file_line(QString& line);
-
-// First to import
-bool	import_nsrl_mfg(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query, uint burst);
-
-// Second to import
-bool	import_nsrl_os(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query, uint burst);
-
-// Third to import
-bool	import_nsrl_prod(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& product_query, uint burst);
-
-/*
- * Main
- */
+#include "common.h"
+#include "database.h"
+#include "import.h"
 
 int		main(int argc, char* argv[]);
 
@@ -88,4 +55,3 @@ void	check_settings();
  * Prints the usage message to stdout
  */
 void	usage();
-

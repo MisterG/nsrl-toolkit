@@ -1,15 +1,21 @@
-drop table if exists hash;
-drop table if exists file;
-drop table if exists product_has_os;
-drop table if exists product;
-drop table if exists os;
-drop table if exists mfg;
+DROP TABLE IF EXISTS hash;
+DROP TABLE IF EXISTS file;
+DROP TABLE IF EXISTS product_has_os;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS os;
+DROP TABLE IF EXISTS mfg;
 
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
-CREATE  TABLE IF NOT EXISTS `nsrl`.`file` (
+CREATE TABLE IF NOT EXISTS `mfg` (
+  `code` varchar(45) NOT NULL,
+  `name` varchar(54) NOT NULL,
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE  TABLE IF NOT EXISTS `file` (
   `file_name` VARCHAR(256) NOT NULL ,
   `file_size` INT(10) UNSIGNED NOT NULL ,
   `product_code` INT(10) UNSIGNED NOT NULL ,
@@ -40,9 +46,7 @@ CREATE  TABLE IF NOT EXISTS `nsrl`.`file` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-ALTER TABLE `nsrl`.`mfg` CHARACTER SET = utf8 ;
-
-CREATE  TABLE IF NOT EXISTS `nsrl`.`os` (
+CREATE  TABLE IF NOT EXISTS `os` (
   `system_code` VARCHAR(16) NOT NULL ,
   `system_name` VARCHAR(69) NOT NULL ,
   `system_version` VARCHAR(20) NOT NULL ,
@@ -57,7 +61,7 @@ CREATE  TABLE IF NOT EXISTS `nsrl`.`os` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE  TABLE IF NOT EXISTS `nsrl`.`product` (
+CREATE  TABLE IF NOT EXISTS `product` (
   `product_code` INT(10) UNSIGNED NOT NULL ,
   `product_name` VARCHAR(138) NOT NULL ,
   `product_version` VARCHAR(49) NOT NULL ,
@@ -74,7 +78,7 @@ CREATE  TABLE IF NOT EXISTS `nsrl`.`product` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE  TABLE IF NOT EXISTS `nsrl`.`product_has_os` (
+CREATE  TABLE IF NOT EXISTS `product_has_os` (
   `product_code` INT(10) UNSIGNED NOT NULL ,
   `system_code` VARCHAR(16) NOT NULL ,
   PRIMARY KEY (`product_code`, `system_code`) ,
@@ -93,7 +97,7 @@ CREATE  TABLE IF NOT EXISTS `nsrl`.`product_has_os` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE  TABLE IF NOT EXISTS `nsrl`.`hash` (
+CREATE  TABLE IF NOT EXISTS `hash` (
   `sha1` BINARY(40) NOT NULL ,
   `md5` BINARY(32) NOT NULL ,
   `crc32` VARCHAR(8) NULL ,
