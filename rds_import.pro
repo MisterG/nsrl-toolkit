@@ -30,13 +30,13 @@ INCLUDEPATH	+= include
 
 TARGET	=	rds_import
 
-SOURCES	+=	rds_import.cpp \
-			src/clean.cpp \
-			src/database.cpp \
-			src/import.cpp
+SOURCES	+=	src/rds_import.cpp \
+		src/clean.cpp \
+		src/database.cpp \
+		src/import.cpp
 
-HEADERS	+=	rds_import.h \
-			include/clean.h \
-			include/database.h \
-			include/import.h \
-			include/common.h
+HEADERS	+=	include/rds_import.h \
+		include/clean.h \
+		include/database.h \
+		include/import.h \
+		include/common.h
