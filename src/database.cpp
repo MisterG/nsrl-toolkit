@@ -1,8 +1,8 @@
 #include "database.h"
 
 bool	init_db(QSqlDatabase& db) {
-	db = QSqlDatabase::addDatabase("QMYSQL"); // TODO: set the URI into the settings
-	QSettings	settings;
+    QSettings	settings;
+    db = QSqlDatabase::addDatabase(settings.value("driver").toString());
 
 	db.setHostName(settings.value("hostname").toString());
 	db.setDatabaseName(settings.value("database").toString());

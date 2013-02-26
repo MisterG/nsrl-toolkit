@@ -108,6 +108,9 @@ void	check_settings() {
 	if ( settings.contains("database") == false )
 		settings.setValue("database", "nsrl");
 
+    if ( settings.contains("driver") == false )
+        settings.setValue("driver", "QMYSQL");
+
 	if ( settings.contains("username") == false )
 		settings.setValue("username", "nsrl");
 
@@ -127,4 +130,11 @@ void	usage() {
 	std::cout << "	tail -n +2 nsrlmfg.txt | rds_import mfg" << std::endl;
 	std::cout << "	tail -n +2 nsrlos.txt | rds_import os" << std::endl;
 	std::cout << "	tail -n +2 nsrlprod.txt | rds_import prod" << std::endl;
+    std::cout << "Settings:" << std::endl;
+    std::cout << "	hostname=	the target host" << std::endl;
+    std::cout << "	database=	the database to use" << std::endl;
+    std::cout << "	driver= 	the database's type, please refer to http://qt-project.org/doc/qt-5.0/qtsql/sql-driver.html" << std::endl;
+    std::cout << "	username=	the login" << std::endl;
+    std::cout << "	password=	the target host" << std::endl;
+    std::cout << "	burst=      the size of a transaction (the number of inserts per commit)" << std::endl;
 }
