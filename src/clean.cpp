@@ -36,21 +36,21 @@
  *
  */
 void	clean_nsrl_file_line(QString& line) {
-	QRegExp	col_1_match("^.{43}(,)");
-	QRegExp	col_1_replace("^(.{41}).{3}");
+        QRegExp	col_1_match("^.{43}(,)");
+        QRegExp	col_1_replace("^(.{41}).{3}");
 
-	QRegExp	col_2_match("^.{78}(,)");
-	QRegExp	col_2_replace("^(.{76}).{3}");
+        QRegExp	col_2_match("^.{78}(,)");
+        QRegExp	col_2_replace("^(.{76}).{3}");
 
-	QRegExp	col_3_match("^.{89}(,)");
-	QRegExp	col_3_replace("^(.{87}).{3}");
+        QRegExp	col_3_match("^.{89}(,)");
+        QRegExp	col_3_replace("^(.{87}).{3}");
 
-	if ( line.contains(col_1_match) == false )
-		line.replace(col_1_replace, "\\1\",\"");
+        if ( line.contains(col_1_match) == false )
+                line.replace(col_1_replace, "\\1\",\"");
 
-	if ( line.contains(col_2_match) == false )
-		line.replace(col_2_replace, "\\1\",\"");
+        if ( line.contains(col_2_match) == false )
+                line.replace(col_2_replace, "\\1\",\"");
 
-	if ( line.contains(col_3_match) == false )
-		line.replace(col_3_replace, "\\1\",\"");
+        if ( line.contains(col_3_match) == false )
+                line.replace(col_3_replace, "\\1\",\"");
 }

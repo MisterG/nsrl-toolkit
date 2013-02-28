@@ -8,15 +8,15 @@
 #include "database.h"
 
 // Last to import
-t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query, uint burst);
+t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query);
 
 // First to import
-t_result	import_nsrl_mfg(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query, uint burst);
+t_result	import_nsrl_mfg(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query);
 
 // Second to import
-t_result	import_nsrl_os(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query, uint burst);
+t_result	import_nsrl_os(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query);
 
 // Third to import
-t_result	import_nsrl_prod(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& product_query, uint burst);
+t_result	import_nsrl_prod(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& product_query);
 
 #endif // IMPORT_H

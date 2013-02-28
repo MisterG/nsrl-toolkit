@@ -28,113 +28,115 @@
 #include "rds_import.h"
 
 int	main(int argc, char* argv[]) {
-	if ( argc != 2 ) {
-		std::cerr << "Arg is missing" << std::endl;
-		usage();
-		return EXIT_FAILURE;
-	}
+        if ( argc != 2 ) {
+                std::cerr << "Arg is missing" << std::endl;
+                usage();
+                return EXIT_FAILURE;
+        }
 
-	/*
-	 * Dealing with settings
-	 */
-	QCoreApplication::setOrganizationName("nsrl_toolkit");
-	QCoreApplication::setApplicationName("rds_import");
+        // TODO: use getopt to read settings from the command line
 
-	QSettings	settings;
-	check_settings();
+        /*
+         * Dealing with settings
+         */
+        QCoreApplication::setOrganizationName("nsrl_toolkit");
+        QCoreApplication::setApplicationName("rds_import");
 
-	QSqlDatabase	db;
-	t_result		result;
+        check_settings();
 
-	QElapsedTimer	timer;
+        QSqlDatabase	db;
+        t_result	result;
 
-	// Create the db object
-	if ( init_db(db) == false )
-		return EXIT_FAILURE;
+        QElapsedTimer	timer;
 
-	QSqlQuery	query(db);
+        // Create the db object
+        if ( init_db(db) == false )
+                return EXIT_FAILURE;
 
-	// Open stdin
-	QFile	q_stdin;
+        QSqlQuery	query(db);
 
-	if ( not q_stdin.open(stdin, QIODevice::ReadOnly) ) {
-		std::cerr << "Cannot open stdin" << std::endl;
-		return EXIT_FAILURE;
-	}
+        // Open stdin
+        QFile	q_stdin;
 
-	/*
-	 * Let's choose the tables to update
-	 */
+        if ( ! q_stdin.open(stdin, QIODevice::ReadOnly) ) {
+                std::cerr << "Cannot open stdin" << std::endl;
+                return EXIT_FAILURE;
+        }
 
-	timer.start();
+        /*
+         * Let's choose the tables to update
+         */
 
-	if ( QString(argv[1]).compare("file") == 0 )
-		result = import_nsrl_file(q_stdin, db, query, settings.value("burst").toUInt());
+        timer.start();
 
-	if ( QString(argv[1]).compare("mfg") == 0 )
-		result = import_nsrl_mfg(q_stdin, db, query, settings.value("burst").toUInt());
+        if ( QString(argv[1]).compare("file") == 0 )
+                result = import_nsrl_file(q_stdin, db, query);
 
-	if ( QString(argv[1]).compare("os") == 0 )
-		result = import_nsrl_os(q_stdin, db, query, settings.value("burst").toUInt());
+        if ( QString(argv[1]).compare("mfg") == 0 )
+                result = import_nsrl_mfg(q_stdin, db, query);
 
-	if ( QString(argv[1]).compare("prod") == 0 )
-		result = import_nsrl_prod(q_stdin, db, query, settings.value("burst").toUInt());
+        if ( QString(argv[1]).compare("os") == 0 )
+                result = import_nsrl_os(q_stdin, db, query);
 
-	std::cout << "Elapsed time: " << timer.elapsed() << std::endl;
-	std::cout << "Processed lines: " << result.processed_lines << std::endl;
+        if ( QString(argv[1]).compare("prod") == 0 )
+                result = import_nsrl_prod(q_stdin, db, query);
 
-	/*
-	 * Ending
-	 */
-	q_stdin.close();
+        std::cout << "Elapsed time: " << timer.elapsed() << std::endl;
+        std::cout << "Processed lines: " << result.processed_lines << std::endl;
 
-	// Close and destroy the db object
-	db.close();
-	QSqlDatabase::removeDatabase("MYSQL");
+        /*
+         * Ending
+         */
+        q_stdin.close();
 
-	if ( result.success == true )
-		return EXIT_SUCCESS;
+        // Close and destroy the db object
+        db.close();
+        QSqlDatabase::removeDatabase(settings.value("driver").toString();
 
-	return EXIT_FAILURE;
+        if ( result.success == true )
+                return EXIT_SUCCESS;
+
+        return EXIT_FAILURE;
 }
 
 void	check_settings() {
-	QSettings	settings;
+        QSettings	settings;
 
-	// database connection
-	if ( settings.contains("hostname") == false )
-		settings.setValue("hostname", "localhost");
+        // database connection
+        if ( settings.contains("hostname") == false )
+                settings.setValue("hostname", "localhost");
 
-	if ( settings.contains("database") == false )
-		settings.setValue("database", "nsrl");
+        if ( settings.contains("database") == false )
+                settings.setValue("database", "nsrl");
 
-    if ( settings.contains("driver") == false )
-        settings.setValue("driver", "QMYSQL");
+        if ( settings.contains("driver") == false )
+                settings.setValue("driver", "QMYSQL");
 
-	if ( settings.contains("username") == false )
-		settings.setValue("username", "nsrl");
+        if ( settings.contains("username") == false )
+                settings.setValue("username", "nsrl");
 
-//	if ( settings.contains("password") == false )
-//		settings.setValue("password", "");
-
-	// burst counter
-	if ( settings.contains("burst") == false )
-		settings.setValue("burst", 1000);
+        //	if ( settings.contains("password") == false )
+        //		settings.setValue("password", "");
+/*
+        // burst counter
+        if ( settings.contains("burst") == false )
+                settings.setValue("burst", 1000);
+*/
 }
 
 void	usage() {
-	std::cout << "rds_import" << std::endl;
-	std::cout << "	Imports NSRL CSV files to a remote database, according to the configuration file (~/.config/nsrl_toolkit/rds_import)" << std::endl;
-	std::cout << "Usage:" << std::endl;
-	std::cout << "	zcat nsrlfiletxt.zip | tail -n +2 | rds_import file" << std::endl;
-	std::cout << "	tail -n +2 nsrlmfg.txt | rds_import mfg" << std::endl;
-	std::cout << "	tail -n +2 nsrlos.txt | rds_import os" << std::endl;
-	std::cout << "	tail -n +2 nsrlprod.txt | rds_import prod" << std::endl;
-    std::cout << "Settings:" << std::endl;
-    std::cout << "	hostname=	the target host" << std::endl;
-    std::cout << "	database=	the database to use" << std::endl;
-    std::cout << "	driver= 	the database's type, please refer to http://qt-project.org/doc/qt-5.0/qtsql/sql-driver.html" << std::endl;
-    std::cout << "	username=	the login" << std::endl;
-    std::cout << "	password=	the target host" << std::endl;
-    std::cout << "	burst=      the size of a transaction (the number of inserts per commit)" << std::endl;
+        std::cout << "rds_import" << std::endl;
+        std::cout << "	Imports NSRL CSV files to a remote database, according to the configuration file (~/.config/nsrl_toolkit/rds_import)" << std::endl;
+        std::cout << "Usage:" << std::endl;
+        std::cout << "	zcat nsrlfiletxt.zip | tail -n +2 | rds_import file" << std::endl;
+        std::cout << "	tail -n +2 nsrlmfg.txt | rds_import mfg" << std::endl;
+        std::cout << "	tail -n +2 nsrlos.txt | rds_import os" << std::endl;
+        std::cout << "	tail -n +2 nsrlprod.txt | rds_import prod" << std::endl;
+        std::cout << "Settings:" << std::endl;
+        std::cout << "	hostname=	the target host" << std::endl;
+        std::cout << "	database=	the database to use" << std::endl;
+        std::cout << "	driver= 	the database's type, please refer to http://qt-project.org/doc/qt-5.0/qtsql/sql-driver.html" << std::endl;
+        std::cout << "	username=	the login" << std::endl;
+        std::cout << "	password=	the target host" << std::endl;
+        std::cout << "	burst=      the size of a transaction (the number of inserts per commit)" << std::endl;
 }
