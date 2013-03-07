@@ -7,7 +7,7 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
     result.success = false;
     result.processed_lines = 0;
 
-    while ( ! q_stdin.atEnd() ) {
+    while ( not q_stdin.atEnd() ) {
         QString line = q_stdin.readLine().simplified();
         QString	sql;
         QString buffer;
@@ -22,8 +22,6 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
 
             result.processed_lines++;
 
-            //std::cout << "line: " << line.toLatin1().constData() << std::endl;
-
             /*
              * Let's extract the first five field ourselves
              * We could use regexp instead
@@ -32,7 +30,6 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
             buffer = line.remove(0,1);
             buffer = line.left(line.indexOf('"'));
             line.remove(0, line.indexOf('"') + 3);
-            //			std::cout << "sha1: " << buffer.toLatin1().constData() << std::endl << "line: " << line.toLatin1().constData() << std::endl;
             if ( buffer.size() != 40 ) {
                 std::cerr << "line: " << result.processed_lines << std::endl;
                 std::cerr << "sha1's length is not 40 characters!" << std::endl;
@@ -43,7 +40,6 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
             // md5
             buffer = line.left(line.indexOf('"'));
             line.remove(0, line.indexOf('"') + 3);
-            //			std::cout << "md5: " << buffer.toLatin1().constData() << std::endl << "line: " << line.toLatin1().constData() << std::endl;
             if ( buffer.size() != 32 ) {
                 std::cerr << "line: " << result.processed_lines << std::endl;
                 std::cerr << "md5's length is not 32 characters!" << std::endl;
@@ -54,7 +50,6 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
             // crc32
             buffer = line.left(line.indexOf('"'));
             line.remove(0, line.indexOf('"') + 3);
-            //			std::cout << "crc32: " << buffer.toLatin1().constData() << std::endl << "line: " << line.toLatin1().constData() << std::endl;
             if ( buffer.size() != 8 ) {
                 std::cerr << "line: " << result.processed_lines << std::endl;
                 std::cerr << "crc's length is not 8 characters!" << std::endl;
@@ -66,8 +61,7 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
             buffer = line.left(line.indexOf('"'));
             //buffer.replace("'", "\\'");
 #ifdef QT_5
-            QSqlField   f_buffer("buffer", QVariant::String);
-            f_buffer.setValue(buffer);
+            QSqlField	f_buffer(buffer);
             buffer = db.driver()->formatValue(f_buffer);
 #else
             buffer = db.driver()->formatValue(buffer);
@@ -108,63 +102,58 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
 
             if ( db.driverName().compare("QPSQL") != 0 ) {
                 sql = "REPLACE INTO hash (sha1, md5, crc32) VALUES ('";
-                sql += fields.at(0) % "','";
-                sql += fields.at(1) % "','";
-                sql += fields.at(2);
-                sql += "');";
             } else {
                 sql = "SELECT upsert_hash('";
-                sql += fields.at(0) % "','";
-                sql += fields.at(1) % "','";
-                sql += fields.at(2);
-                sql += "');";
             }
-            //			std::cout << sql.toLatin1().constData() << std::endl;
+            sql += fields.at(0) % "','";
+            sql += fields.at(1) % "','";
+            sql += fields.at(2);
+            sql += "');";
 
             if ( query.exec(sql) == false ) {
                 std::cerr << "result.processed_lines:" << result.processed_lines << std::endl;
+#ifdef QT_5
                 std::cerr << "query: " << sql.toLatin1().constData() << std::endl;
                 std::cerr << "exec error: " << query.lastError().text().toLatin1().constData() << std::endl;
+#else
+                std::cerr << "query: " << sql.toAscii().constData() << std::endl;
+                std::cerr << "exec error: " << query.lastError().text().toAscii().constData() << std::endl;
+#endif
                 return result;
             }
 
             if ( db.driverName().compare("QPSQL") != 0 ) {
                 sql = "REPLACE INTO file (file_name, file_size, product_code, op_system_code, special_code, hash_sha1) VALUES ('";
-                sql += fields.at(3) % "','";
-                sql += fields.at(4) % "','";
-                sql += fields.at(5) % "','";
-                sql += fields.at(6) % "','";
-                sql += fields.at(7) % "','";
-                sql += fields.at(0);
-                sql += "');";
             } else {
                 sql = "SELECT upsert_file('";
-                sql += fields.at(3) % "','";
-                sql += fields.at(4) % "','";
-                sql += fields.at(5) % "','";
-                sql += fields.at(6) % "','";
-                sql += fields.at(7) % "','";
-                sql += fields.at(0);
-                sql += "');";
             }
+            sql += fields.at(3) % "','";
+            sql += fields.at(4) % "','";
+            sql += fields.at(5) % "','";
+            sql += fields.at(6) % "','";
+            sql += fields.at(7) % "','";
+            sql += fields.at(0);
+            sql += "');";
 
             if ( query.exec(sql) == false ) {
-                std::cerr << "fields size: " << fields.size() << std::endl;
+#ifdef QT_5
                 std::cerr << "query: " << sql.toLatin1().constData() << std::endl;
                 std::cerr << "exec error: " << query.lastError().text().toLatin1().constData() << std::endl;
+#else
+                std::cerr << "query: " << sql.toAscii().constData() << std::endl;
+                std::cerr << "exec error: " << query.lastError().text().toAscii().constData() << std::endl;
+#endif
                 return result;
             }
-            /*
-               if ( burst_commit(db, burst) == false ) {
-               std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
-               return result;
-               }
-             */
         }
     }
 
     if ( db.commit() == false ) {
+#ifdef QT_5
         std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
+#else
+        std::cerr << "transaction error: " << db.lastError().text().toAscii().constData() << std::endl;
+#endif
         return result;
     }
 
@@ -185,7 +174,7 @@ t_result	import_nsrl_mfg(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
     result.success = false;
     result.processed_lines = 0;
 
-    while ( ! q_stdin.atEnd() ) {
+    while ( not q_stdin.atEnd() ) {
         QString		buffer;
         QString		line = q_stdin.readLine().simplified();
         QStringList	fields;
@@ -196,14 +185,10 @@ t_result	import_nsrl_mfg(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
 
         result.processed_lines++;
 
-        //		line.replace("\"", "");
-        //		std::cout << "line: " << line.toLatin1().constData() << std::endl;
-
         // code
         line.remove(0,1);
         buffer = line.left(line.indexOf("\",\""));
         line.remove(0, line.indexOf("\",\"") + 3);
-        //		std::cout << "code: " << buffer.toLatin1().constData() << std::endl << "line: " << line.toLatin1().constData() << std::endl;
         fields << buffer;
 
         // name
@@ -211,7 +196,11 @@ t_result	import_nsrl_mfg(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
         fields << line;
 
         if ( fields.size() != 2 ) {
+#ifdef QT_5
             std::cerr << "error: cannot extract the 2 required fields from: " << line.toLatin1().constData() << std::endl;
+#else
+            std::cerr << "error: cannot extract the 2 required fields from: " << line.toAscii().constData() << std::endl;
+#endif
             return result;
         }
 
@@ -224,21 +213,25 @@ t_result	import_nsrl_mfg(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
         query.bindValue(":name", fields.at(1));
 
         if ( query.exec() == false ) {
+#ifdef QT_5
+            std::cerr << "query: " << query.executedQuery().toLatin1().constData() << std::endl;
             std::cerr << "exec error: " << query.lastError().text().toLatin1().constData() << std::endl;
+#else
+            std::cerr << "query: " << query.executedQuery().toAscii().constData() << std::endl;
+            std::cerr << "exec error: " << query.lastError().text().toAscii().constData() << std::endl;
+#endif
             return result;
         }
-        /*
-           if ( burst_commit(db, burst) == false ) {
-           std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
-           return result;
-           }
-         */
     }
 
     query.finish();
 
     if ( db.commit() == false ) {
+#ifdef QT_5
         std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
+#else
+        std::cerr << "transaction error: " << db.lastError().text().toAscii().constData() << std::endl;
+#endif
         return result;
     }
 
@@ -271,7 +264,7 @@ t_result	import_nsrl_os(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
     result.processed_lines = 0;
     result.success = false;
 
-    while ( ! q_stdin.atEnd() ) {
+    while ( not q_stdin.atEnd() ) {
         QString line = q_stdin.readLine().simplified();
 
         // Skip useless lines
@@ -297,24 +290,32 @@ t_result	import_nsrl_os(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
         query.bindValue(":mfg_code", fields.at(3));
 
         if ( query.exec() == false ) {
+#ifdef QT_5
             std::cerr << "exec error: " << query.lastError().text().toLatin1().constData() << std::endl;
             std::cerr << "line: " << line.toLatin1().constData() << std::endl;
             std::cerr << query.executedQuery().toLatin1().constData() << std::endl;
+#else
+            std::cerr << "exec error: " << query.lastError().text().toAscii().constData() << std::endl;
+            std::cerr << "line: " << line.toAscii().constData() << std::endl;
+            std::cerr << query.executedQuery().toAscii().constData() << std::endl;
+#endif
             Q_FOREACH(QString key, query.boundValues().keys()) {
+#ifdef QT_5
                 std::cerr << key.toLatin1().constData() << ":" << query.boundValue(key).toString().toLatin1().constData()  << ":" << std::endl;
+#else
+                std::cerr << key.toAscii().constData() << ":" << query.boundValue(key).toString().toAscii().constData()  << ":" << std::endl;
+#endif
             }
             return result;
         }
-        /*
-           if ( burst_commit(db, burst) == false ) {
-           std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
-           return result;
-           }
-         */
     }
 
     if ( db.commit() == false ) {
+#ifdef QT_5
         std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
+#else
+        std::cerr << "transaction error: " << db.lastError().text().toAscii().constData() << std::endl;
+#endif
         return result;
     }
 
@@ -349,18 +350,26 @@ t_result	import_nsrl_prod(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& product_q
         link_query.prepare("INSERT IGNORE INTO product_has_os (product_code, system_code) VALUES (:product_code, :system_code);");
     } else {
         if ( product_query.prepare("SELECT upsert_product(:code, :name, :version, :mfg_code, :language, :application_type);") == false ) {
+#ifdef QT_5
             std::cerr << "Unable to prepare upsert_product: " << db.lastError().text().toLatin1().constData() << std::endl;
+#else
+            std::cerr << "Unable to prepare upsert_product: " << db.lastError().text().toAscii().constData() << std::endl;
+#endif
             db.rollback();
             return result;
         }
         if ( link_query.prepare("SELECT upsert_product_has_os(:product_code, :system_code);") == false ) {
+#ifdef QT_5
             std::cerr << "Unable to prepare upsert_product_has_os: " << db.lastError().text().toLatin1().constData() << std::endl;
+#else
+            std::cerr << "Unable to prepare upsert_product_has_os: " << db.lastError().text().toAscii().constData() << std::endl;
+#endif
             db.rollback();
             return result;
         }
     }
 
-    while ( ! q_stdin.atEnd() ) {
+    while ( not q_stdin.atEnd() ) {
         QString line = q_stdin.readLine().simplified();
 
         if ( line.indexOf(",") == -1 )
@@ -415,16 +424,14 @@ t_result	import_nsrl_prod(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& product_q
             db.rollback();
             return result;
         }
-        /*
-           if ( burst_commit(db, burst) == false ) {
-           std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
-           return result;
-           }
-         */
     }
 
     if ( db.commit() == false ) {
+#ifdef QT_5
         std::cerr << "transaction error: " << db.lastError().text().toLatin1().constData() << std::endl;
+#else
+        std::cerr << "transaction error: " << db.lastError().text().toAscii().constData() << std::endl;
+#endif
         return result;
     }
 

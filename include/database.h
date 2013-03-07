@@ -6,7 +6,6 @@
 
 #include "common.h"
 
-bool	init_db(QSqlDatabase& db);
-bool	burst_commit(QSqlDatabase& db, uint burst);
+bool	init_db(QSqlDatabase& db, const m_settings& settings);
 
 #endif // DATABASE_H

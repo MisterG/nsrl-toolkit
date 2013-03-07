@@ -28,26 +28,32 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <QStringBuilder>
+#include <QMap>
 #include <QtSql>
 
 #include "common.h"
 #include "database.h"
 #include "import.h"
 
-int		main(int argc, char* argv[]);
+
+int	main(int argc, char* argv[]);
 
 /*
  * check_settings
  *
- * Deals with the saved settings according to the platform (using QSettings):
+ * Deals with the settings to use:
  * - hostname:	the remote database server
  * - database:	the name of the schema to use
- * - user:		the username
- * - burst:		the number of queries to commit at each commit
+ * - user:	the username
+ *
+ * @arg		: the m_settings to check
+ * @return	: true for success
+ * 
  */
-void	check_settings();
+bool	check_settings(const m_settings& settings);
 
 /*
  * usage
@@ -55,3 +61,4 @@ void	check_settings();
  * Prints the usage message to stdout
  */
 void	usage();
+

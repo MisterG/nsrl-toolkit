@@ -1,8 +1,8 @@
 # Project: nsrl-toolkit
-# File name: rds_import.pro
+# File name: rds_bench.pro
 # Description: describes the Qt project and how to build it
 #
-# @author Mathieu Grzybek on 2012-10-24
+# @author Mathieu Grzybek on 2013-02-26
 # @copyright 2012 Mathieu Grzybek. All rights reserved.
 # @version $Id: code-gpl-license.txt,v 1.2 2004/05/04 13:19:30 garry Exp $
 #
@@ -23,27 +23,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-# Version's control
-contains(QT_VERSION, ^5\\.[0-9]\\..*) {
-		DEFINES	+= QT_5
-}
-
 QT	+=	core sql
 QT	-=	gui
 
 INCLUDEPATH	+= include
 
-TARGET	=	rds_import
+TARGET	=	rds_bench
 
-SOURCES	+=	src/rds_import.cpp \
-		src/clean.cpp \
-		src/database.cpp \
-		src/import.cpp \
-		src/csv_extractor.cpp
+SOURCES	+=	src/rds_bench.cpp \
+		src/database.cpp
 
-HEADERS	+=	include/rds_import.h \
-		include/clean.h \
+HEADERS	+=	include/rds_bench.h \
 		include/database.h \
-		include/import.h \
-		include/common.h \
-		include/csv_extractor.h
+		include/common.h
