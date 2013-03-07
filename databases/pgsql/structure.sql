@@ -172,7 +172,7 @@ CREATE INDEX file_index_hash_sha1 ON file (hash_sha1);
 CREATE FUNCTION upsert_file(in_file_name VARCHAR(256), in_file_size BIGINT, in_product_code BIGINT, in_op_system_code VARCHAR(15), in_special_code VARCHAR(10), in_hash_sha1 BYTEA) RETURNS VOID AS
 $$
 BEGIN
-	UPDATE file SET (file_name, file_size, product_code, op_system_code, special_code, hash_sha1) = (in_file_name, in_file_size, in_product_code, in_op_system_code, in_special_code, in_hash_sha1);
+	PERFORM id FROM file WHERE file_name = in_file_name AND file_size = in_file_size AND product_code = in_product_code AND op_system_code = in_op_system_code AND special_code = in_special_code AND hash_sha1 = in_hash_sha1;
 
 	IF found THEN
 		RETURN;
