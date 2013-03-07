@@ -6,6 +6,7 @@
 #include "clean.h"
 #include "common.h"
 #include "database.h"
+#include "csv_extractor.h"
 
 // Last to import
 t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query);

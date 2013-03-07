@@ -84,3 +84,4 @@ bool    extract_file(QStringList& _return, QString& line, const QSqlDriver& driv
 	}
 	return false;
 }
+

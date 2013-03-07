@@ -23,3 +23,4 @@ typedef struct {
 } t_result;
 
 #endif // COMMON_H
+

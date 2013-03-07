@@ -161,7 +161,7 @@ bool	check_settings(const m_settings& settings) {
 
 void	usage() {
 	std::cout << "rds_import" << std::endl;
-	std::cout << "	Imports NSRL CSV files to a remote database, according to the configuration file (according to QSettings' behaviour ~/.config/nsrl_toolkit/rds_import or registry)" << std::endl;
+	std::cout << "	Imports NSRL CSV files to a remote database, according to the configuration file (according to QSettings' behaviour ~/.config/nsrl_toolkit/rds_import or registry) or the given arguments" << std::endl;
 	std::cout << "Usage:" << std::endl;
 	std::cout << "	rds_import <import_type> | (-h <hostname> -s <database> -d <driver> -u <username> -p <password> -f <import_type>)" << std::endl;
 	std::cout << "Synopsys:" << std::endl;

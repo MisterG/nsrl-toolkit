@@ -11,90 +11,15 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
         QString line = q_stdin.readLine().simplified();
         QString	sql;
         QString buffer;
+	QStringList	fields;
 
-        // Skip useless lines
-        if ( line.indexOf(",") == -1 )
-            continue;
-
-        if ( line.length() > 1 ) {
-            QStringList	fields;
-            clean_nsrl_file_line(line);
-
-            result.processed_lines++;
-
+	if ( extract_file(fields, line, *db.driver()) == true ) {
             /*
-             * Let's extract the first five field ourselves
-             * We could use regexp instead
-             */
-            // sha1
-            buffer = line.remove(0,1);
-            buffer = line.left(line.indexOf('"'));
-            line.remove(0, line.indexOf('"') + 3);
-            if ( buffer.size() != 40 ) {
-                std::cerr << "line: " << result.processed_lines << std::endl;
-                std::cerr << "sha1's length is not 40 characters!" << std::endl;
-                return result;
-            }
-            fields << buffer;
-
-            // md5
-            buffer = line.left(line.indexOf('"'));
-            line.remove(0, line.indexOf('"') + 3);
-            if ( buffer.size() != 32 ) {
-                std::cerr << "line: " << result.processed_lines << std::endl;
-                std::cerr << "md5's length is not 32 characters!" << std::endl;
-                return result;
-            }
-            fields << buffer;
-
-            // crc32
-            buffer = line.left(line.indexOf('"'));
-            line.remove(0, line.indexOf('"') + 3);
-            if ( buffer.size() != 8 ) {
-                std::cerr << "line: " << result.processed_lines << std::endl;
-                std::cerr << "crc's length is not 8 characters!" << std::endl;
-                return result;
-            }
-            fields << buffer;
-
-            // file_name
-            buffer = line.left(line.indexOf('"'));
-            //buffer.replace("'", "\\'");
-#ifdef QT_5
-            QSqlField	f_buffer(buffer);
-            buffer = db.driver()->formatValue(f_buffer);
-#else
-            buffer = db.driver()->formatValue(buffer);
-#endif
-            line.remove(0, line.indexOf('"') + 2);
-            fields << buffer;
-
-            // file_size
-            buffer = line.left(line.indexOf(','));
-            line.remove(0, line.indexOf(',') + 1);
-            fields << buffer;
-
-            // product code (always an int)
-            buffer = line.left(line.indexOf(','));
-            line.remove(0, line.indexOf(',') + 2);
-            fields << buffer;
-
-            // system code (string)
-            buffer = line.left(line.indexOf("\",\""));
-            line.remove(0, line.indexOf("\",\"") + 3);
-            fields << buffer;
-
-            // special code
-            buffer = line.remove(0,2);
-            buffer = line.left(line.length() - 1);
-            fields << buffer;
-
-            /*
-               sha1			fields.at(0)
-               md5				fields.at(1)
-               crc32			fields.at(2)
-               file_name		fields.at(3)
-               file_size		fields.at(4)
+               sha1		fields.at(0)
+               md5		fields.at(1)
+               crc32		fields.at(2)
+               file_name	fields.at(3)
+               file_size	fields.at(4)
                product_code	fields.at(5)
                op_system_code	fields.at(6)
                special_code	fields.at(7)
@@ -145,6 +70,7 @@ t_result	import_nsrl_file(QFile& q_stdin, QSqlDatabase& db, QSqlQuery& query) {
 #endif
                 return result;
             }
+		fields.clear();
         }
     }
 
