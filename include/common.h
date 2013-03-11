@@ -18,8 +18,8 @@ typedef	QMap<QString, QString>	m_settings;
  * t_result
  */
 typedef struct {
-	bool	success;
-	uint	processed_lines;
+    bool	success;
+    uint	processed_lines;
 } t_result;
 
 #endif // COMMON_H
