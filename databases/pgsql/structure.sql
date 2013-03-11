@@ -55,7 +55,6 @@ CREATE TABLE IF NOT EXISTS hash (
   crc32 VARCHAR(8) NULL,
   PRIMARY KEY (sha1)
 );
-CREATE INDEX hash_index_sha1 ON hash (sha1);
 
 CREATE FUNCTION upsert_hash(in_sha1 BYTEA, in_md5 BYTEA, in_crc32 VARCHAR(8)) RETURNS VOID AS
 $$
@@ -89,7 +88,6 @@ CREATE TABLE IF NOT EXISTS product (
     ON DELETE RESTRICT
     ON UPDATE RESTRICT
 );
-CREATE INDEX product_mfg_code_index ON product (mfg_code);
 
 CREATE FUNCTION upsert_product(in_product_code BIGINT, in_product_name VARCHAR(138), in_product_version VARCHAR(49), in_mfg_code VARCHAR(45), in_language VARCHAR(64), in_application_type VARCHAR(36)) RETURNS VOID AS
 $$
@@ -120,7 +118,6 @@ CREATE TABLE IF NOT EXISTS os (
     ON DELETE RESTRICT
     ON UPDATE RESTRICT
 );
-CREATE INDEX fk_os_mfg_code ON os (mfg_code);
 
 CREATE FUNCTION upsert_os(in_system_code VARCHAR(16), in_system_name VARCHAR(69), in_system_version VARCHAR(20), in_mfg_code VARCHAR(45)) RETURNS VOID AS
 $$
@@ -164,10 +161,6 @@ CREATE TABLE IF NOT EXISTS file (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
-CREATE INDEX file_index_product_code ON file (product_code);
-CREATE INDEX file_index_op_system_code ON file (op_system_code);
-CREATE INDEX file_index_special_code ON file (special_code);
-CREATE INDEX file_index_hash_sha1 ON file (hash_sha1);
 
 CREATE FUNCTION upsert_file(in_file_name VARCHAR(256), in_file_size BIGINT, in_product_code BIGINT, in_op_system_code VARCHAR(15), in_special_code VARCHAR(10), in_hash_sha1 BYTEA) RETURNS VOID AS
 $$
@@ -200,8 +193,6 @@ CREATE TABLE IF NOT EXISTS product_has_os (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
-CREATE INDEX fk_product_has_os_os ON product_has_os (system_code);
-CREATE INDEX fk_product_has_os_product ON product_has_os (product_code );
 
 CREATE FUNCTION upsert_product_has_os(in_product_code BIGINT, in_system_code VARCHAR(16)) RETURNS VOID AS
 $$
