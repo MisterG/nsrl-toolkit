@@ -8,8 +8,6 @@ bool    extract_file(QStringList& _return, QString& line, const QSqlDriver& driv
 		return false;
 
 	if ( line.length() > 1 ) {
-		//clean_nsrl_file_line(line);
-
 		/*
 		 * Let's extract the first five field ourselves
 		 * We could use regexp instead

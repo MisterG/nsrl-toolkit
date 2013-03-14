@@ -77,6 +77,7 @@ int	main(int argc, char** argv) {
 
 	QSqlDatabase	db;
 	t_result	result;
+	qint64		total_time;
 
 	QElapsedTimer	timer;
 
@@ -112,8 +113,15 @@ int	main(int argc, char** argv) {
 	if ( settings.value("import_type").compare("prod") == 0 )
 		result = import_nsrl_prod(q_stdin, db, query);
 
-	std::cout << "Elapsed time: " << timer.elapsed() << std::endl;
-	std::cout << "Processed lines: " << result.processed_lines << std::endl;
+	total_time = timer.elapsed();
+
+	if ( result.processed_lines > 0 ) {
+		std::cout << "Elapsed time: " << total_time << " milliseconds (" << (float)total_time / 1000.0 << " seconds)" << std::endl;
+		std::cout << "Processed lines: " << result.processed_lines << std::endl;
+		std::cout << "Speed: " << (float)result.processed_lines / ((float)total_time / 1000.0 ) << " rows / second" << std::endl;
+	} else {
+		std::cout << "No line returned" << std::endl;
+	}
 
 	/*
 	 * Ending
