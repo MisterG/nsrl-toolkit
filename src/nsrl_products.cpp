@@ -76,9 +76,9 @@ int	main(int argc, char** argv) {
 		return EXIT_FAILURE;
 
 	QSqlDatabase	db;
-    QString         sql;
+	QString         sql;
 
-//	QElapsedTimer	timer;
+	//	QElapsedTimer	timer;
 
 	// Create the db object
 	if ( init_db(db, settings) == false )
@@ -94,23 +94,23 @@ int	main(int argc, char** argv) {
 		return EXIT_FAILURE;
 	}
 
-    while ( not q_stdin.atEnd() ) {
-        QString line = q_stdin.readLine().simplified();
+	while ( not q_stdin.atEnd() ) {
+		QString line = q_stdin.readLine().simplified();
 
-        if ( settings.value("checksum_type").compare("sha1") == 0 ) {
-            sql = "SELECT DISTINCT p.product_name FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = '";
-        } else {
-            sql = "SELECT DISTINCT p.product_name FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = '";
-        }
-        sql += line.toUpper();
-        sql += "' ORDER BY p.product_name ASC;";
+		if ( settings.value("checksum_type").compare("sha1") == 0 ) {
+			sql = "SELECT DISTINCT p.product_name FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = '";
+		} else {
+			sql = "SELECT DISTINCT p.product_name FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = '";
+		}
+		sql += line.toUpper();
+		sql += "' ORDER BY p.product_name ASC;";
 
-        query.exec(sql);
+		query.exec(sql);
 
-        if ( query.next() ) {
-            std::cout << query.value(0).toString().toLatin1().constData() << std::endl;
-        }
-    }
+		if ( query.next() ) {
+			std::cout << query.value(0).toString().toLatin1().constData() << std::endl;
+		}
+	}
 
 	/*
 	 * Ending
@@ -150,10 +150,10 @@ bool	check_settings(const m_settings& settings) {
 		return false;
 	}
 
-    if ( settings.value("checksum_type").compare("md5") != 0 and settings.value("checksum_type").compare("sha1") != 0 ) {
-        std::cerr << "checksum_type must be either \"md5\" or \"sha1\"" << std::endl;
-        return false;
-    }
+	if ( settings.value("checksum_type").compare("md5") != 0 and settings.value("checksum_type").compare("sha1") != 0 ) {
+		std::cerr << "checksum_type must be either \"md5\" or \"sha1\"" << std::endl;
+		return false;
+	}
 
 	return true;
 }

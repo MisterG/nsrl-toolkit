@@ -25,7 +25,7 @@
 
 # Version's control
 contains(QT_VERSION, ^5\\.[0-9]\\..*) {
-		DEFINES	+= QT_5
+	DEFINES	+= QT_5
 }
 
 QT	+=	core sql
@@ -36,9 +36,9 @@ INCLUDEPATH	+= include
 TARGET	=	nsrl_products
 
 SOURCES	+=	src/nsrl_products.cpp \
-		src/database.cpp
+	src/database.cpp
 
 HEADERS	+=	include/nsrl_products.h \
-        include/common.h \
-		include/database.h
+	include/common.h \
+	include/database.h
 
