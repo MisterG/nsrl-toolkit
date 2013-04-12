@@ -92,8 +92,8 @@ int	main(int argc, char** argv) {
 bool	process_input(const m_settings& settings) {
 	QSqlDatabase	db;
 	QSqlQuery	query(db);
-	QString     sql;
-	QFile	    q_stdin;
+	QString		sql;
+	QFile		q_stdin;
 
 	// Create the db object
 	if ( init_db(db, settings) == false )
@@ -107,12 +107,13 @@ bool	process_input(const m_settings& settings) {
 	while ( not q_stdin.atEnd() ) {
 		QString line = q_stdin.readLine().simplified();
 
-		build_sql(sql, line.toUpper(), settings);
-
-		if ( sql.isEmpty() == true ) {
-			std::cerr << "Cannot build the SQL query" << std::endl;
-			return false;
+		if ( settings.value("checksum_type").compare("sha1") == 0 ) {
+			sql = "SELECT DISTINCT p.product_name FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = '";
+		} else {
+			sql = "SELECT DISTINCT p.product_name FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = '";
 		}
+		sql += line.toUpper();
+		sql += "' ORDER BY p.product_name ASC;";
 
 		if ( query.exec(sql) == false )
 
@@ -125,19 +126,6 @@ bool	process_input(const m_settings& settings) {
 	q_stdin.close();
 	db.close();
 	QSqlDatabase::removeDatabase("MYSQL");
-
-	return true;
-}
-
-void	build_sql(QString& _return, const QString& hash_value, const m_settings& settings) {
-	if ( settings.value("checksum_type").compare("sha1") == 0 ) {
-		_return = "SELECT DISTINCT p.product_name FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = '";
-	} else {
-		_return = "SELECT DISTINCT p.product_name FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = '";
-	}
-
-	_return += hash_value.toUpper();
-	_return += "' ORDER BY p.product_name ASC;";
 }
 
 bool	check_settings(const m_settings& settings) {

@@ -38,8 +38,39 @@
 #include "database.h"
 #include "import.h"
 
-
+/*
+ * main
+ *
+ * The main function if the program
+ *
+ * @arg     : the number of arguments
+ * @arg     : the arguments
+ *
+ * @return	: EXIT_FAILURE or EXIT_SUCCESS
+ */
 int	main(int argc, char* argv[]);
+
+
+/*
+ * process_input
+ *
+ * Opens std::cin, queries the database and prints the result
+ *
+ * @arg		: the m_settings to check
+ * @return	: true for success
+ */
+bool	process_input(const m_settings& settings);
+
+/*
+ * build_sql
+ *
+ * Writes the SQL query to _return according to the settings
+ *
+ * @arg		: the returning value
+ * @arg		: the hash to use 
+ * @arg		: the m_settings to check
+ */
+void	build_sql(QString& _return, const QString& hash_value, const m_settings& settings);
 
 /*
  * check_settings
