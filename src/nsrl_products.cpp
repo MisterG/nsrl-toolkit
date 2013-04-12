@@ -104,27 +104,35 @@ bool	process_input(const m_settings& settings) {
 
 	QSqlQuery	query(db);
 
+	build_sql(sql, settings);
+
+	if ( sql.isEmpty() == true ) {
+		std::cerr << "Cannot build the SQL query" << std::endl;
+		return false;
+	}
+
 	if ( not q_stdin.open(stdin, QIODevice::ReadOnly) ) {
 		std::cerr << "Cannot open stdin" << std::endl;
 		return EXIT_FAILURE;
 	}
 
+	if ( query.prepare(sql) == false ) {
+		std::cerr << "Cannot prepare the statement" << std::endl;
+		return false;
+	}
+
 	while ( not q_stdin.atEnd() ) {
 		QString line = q_stdin.readLine().simplified();
 
-		build_sql(sql, line.toUpper(), settings);
+		query.bindValue(":hash", line.toUpper());
 
-		if ( sql.isEmpty() == true ) {
-			std::cerr << "Cannot build the SQL query" << std::endl;
+		if ( query.exec() == false ) {
+			std::cerr << "Cannot execute the query: " << query.lastError().databaseText().toLatin1().constData() << query.lastQuery().toLatin1().constData() << std::endl;
 			return false;
 		}
 
-		if ( query.exec(sql) == false ) {
-			std::cerr << "Cannot execute the query" << std::endl;
-			return false;
-		}
-
-		if ( query.next() ) {
+		// TODO: find a way to print all the possible product_names (several rows as result) -> not a simple loop
+		while ( query.next() ) {
 			if ( settings.contains("full_print") == true ) {
 				std::cout << query.value(0).toString().toLatin1().constData() << "\t";
 				std::cout << query.value(1).toString().toLatin1().constData() << "\t";
@@ -137,13 +145,14 @@ bool	process_input(const m_settings& settings) {
 
 	// Let's close / destroy the objects
 	q_stdin.close();
+	query.finish();
 	db.close();
 	QSqlDatabase::removeDatabase("MYSQL");
 
 	return true;
 }
 
-void	build_sql(QString& _return, const QString& hash_value, const m_settings& settings) {
+void	build_sql(QString& _return, const m_settings& settings) {
 	if ( settings.contains("full_print")  == true )
 		if ( settings.value("checksum_type").compare("sha1") == 0 )
 			_return = "SELECT DISTINCT h.sha1, f.file_name, p.product_name ";
@@ -153,13 +162,12 @@ void	build_sql(QString& _return, const QString& hash_value, const m_settings& se
 		_return = "SELECT DISTINCT p.product_name ";
 
 	if ( settings.value("checksum_type").compare("sha1") == 0 ) {
-		_return += " FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = '";
+		_return += " FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = ";
 	} else {
-		_return += " FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = '";
+		_return += " FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = ";
 	}
 
-	_return += hash_value.toUpper();
-	_return += "' ORDER BY p.product_name ASC;";
+	_return += ":hash ORDER BY p.product_name ASC;";
 }
 
 bool	check_settings(const m_settings& settings) {

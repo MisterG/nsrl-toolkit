@@ -67,10 +67,9 @@ bool	process_input(const m_settings& settings);
  * Writes the SQL query to _return according to the settings
  *
  * @arg		: the returning value
- * @arg		: the hash to use 
  * @arg		: the m_settings to check
  */
-void	build_sql(QString& _return, const QString& hash_value, const m_settings& settings);
+void	build_sql(QString& _return, const m_settings& settings);
 
 /*
  * check_settings
