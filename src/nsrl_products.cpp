@@ -42,7 +42,7 @@ int	main(int argc, char** argv) {
 
 	if ( argc > 2 ) {
 		int c;
-		while ((c = getopt (argc, argv, "h:u:p:d:s:t:")) != -1 ) {
+		while ((c = getopt (argc, argv, "h:u:p:d:s:t:f")) != -1 ) {
 			switch (c) {
 				case 'h':
 					settings.insert("hostname", optarg);
@@ -61,6 +61,9 @@ int	main(int argc, char** argv) {
 					break;
 				case 't':
 					settings.insert("checksum_type", optarg);
+					break;
+				case 'f':
+					settings.insert("full_print", "true");
 					break;
 				case '?':
 					return EXIT_FAILURE;
@@ -91,13 +94,15 @@ int	main(int argc, char** argv) {
 
 bool	process_input(const m_settings& settings) {
 	QSqlDatabase	db;
-	QSqlQuery	query(db);
 	QString     sql;
 	QFile	    q_stdin;
 
 	// Create the db object
+	// TODO: prepare the statement
 	if ( init_db(db, settings) == false )
 		return EXIT_FAILURE;
+
+	QSqlQuery	query(db);
 
 	if ( not q_stdin.open(stdin, QIODevice::ReadOnly) ) {
 		std::cerr << "Cannot open stdin" << std::endl;
@@ -114,11 +119,20 @@ bool	process_input(const m_settings& settings) {
 			return false;
 		}
 
-		if ( query.exec(sql) == false )
+		if ( query.exec(sql) == false ) {
+			std::cerr << "Cannot execute the query" << std::endl;
+			return false;
+		}
 
-			if ( query.next() ) {
+		if ( query.next() ) {
+			if ( settings.contains("full_print") == true ) {
+				std::cout << query.value(0).toString().toLatin1().constData() << "\t";
+				std::cout << query.value(1).toString().toLatin1().constData() << "\t";
+				std::cout << query.value(2).toString().toLatin1().constData() << std::endl;
+			} else {
 				std::cout << query.value(0).toString().toLatin1().constData() << std::endl;
 			}
+		}
 	}
 
 	// Let's close / destroy the objects
@@ -130,10 +144,18 @@ bool	process_input(const m_settings& settings) {
 }
 
 void	build_sql(QString& _return, const QString& hash_value, const m_settings& settings) {
+	if ( settings.contains("full_print")  == true )
+		if ( settings.value("checksum_type").compare("sha1") == 0 )
+			_return = "SELECT DISTINCT h.sha1, f.file_name, p.product_name ";
+		else
+			_return = "SELECT DISTINCT h.md5, f.file_name, p.product_name ";
+	else
+		_return = "SELECT DISTINCT p.product_name ";
+
 	if ( settings.value("checksum_type").compare("sha1") == 0 ) {
-		_return = "SELECT DISTINCT p.product_name FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = '";
+		_return += " FROM product p, file f WHERE f.product_code = p.product_code AND f.hash_sha1 = '";
 	} else {
-		_return = "SELECT DISTINCT p.product_name FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = '";
+		_return += " FROM product p, file f, hash h WHERE f.product_code = p.product_code AND h.sha1 = f.hash_sha1 AND h.md5 = '";
 	}
 
 	_return += hash_value.toUpper();
@@ -178,7 +200,7 @@ void	usage() {
 	std::cout << "nsrl_products" << std::endl;
 	std::cout << "	Grabs the NSRL products' list according to the given input using a database, according to the configuration file (according to QSettings' behaviour ~/.config/nsrl_toolkit/rds_import or registry) or the given arguments" << std::endl;
 	std::cout << "Usage:" << std::endl;
-	std::cout << "	nsrl_products -t <checksum_type> (-h <hostname> -s <database> -d <driver> -u <username> [-p <password>])" << std::endl;
+	std::cout << "	nsrl_products [-f] -t <checksum_type> (-h <hostname> -s <database> -d <driver> -u <username> [-p <password>])" << std::endl;
 	std::cout << "Synopsys:" << std::endl;
 	std::cout << "	cat md5_list | nsrl_products | sort -u" << std::endl;
 	std::cout << "Settings / Arguments:" << std::endl;
@@ -189,5 +211,6 @@ void	usage() {
 	std::cout << "	password=	the target host" << std::endl;
 	std::cout << "Arguments:" << std::endl;
 	std::cout << "	checksum_type=	the checksum to copare (md5 or sha1)" << std::endl;
+	std::cout << "	full_print=	prints the whole fields, not only the product's name" << std::endl;
 }
 
