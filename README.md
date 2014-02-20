@@ -12,7 +12,7 @@ Three QMake projects are available:
 * rds_benchmark: intends to parse the whole database looking for checksums. It provides some benchmark data
 * nsrl_products: gives the product the checksum is part of
 
-They behave like standard UNIX commands, ie. the open the standard input and process data. They use a configuration file or command-line arguments.
+They behave like standard UNIX commands, ie. the open they standard input and process data. They use a configuration file or command-line arguments.
 
 
 Requirements
